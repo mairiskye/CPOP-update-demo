@@ -29,17 +29,53 @@ The scripts which obtain the data from APIs are within the _/data_update/API_que
 
 ## Data Update Steps 
 
-### 1. Clone This Repository
-Once you have [cloned](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)  this repository, in RStudio, in the console run `renv::restore()` to synchronize your package library with that in the lockfile to ensure package dependencies for this project are met. Note: if you are asked to run `renv::activate()`, do so.
+### 1. Prepare Environment
+Once you have [cloned](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)  this repository, in RStudio, in the console run:
 
+  `install.packages("renv")`
+  
+and then:
 
-### 2. Run API Scripts
-Run the  _/data_update/update_data.R_ file.
-This runs all individual API query scripts (within _/data_update/API_queries_) in the correct order. Since this involves 11 successive API calls it might take a minute or two to complete. The final script run _(/data_update/API_scripts/run_third/master_data.R)_ contains code which automatically updates the file name referenced in the `global.R` script so that it will read from the most recent master data. 
+  `renv::restore()`
+  
+to synchronize your package library with that in the lockfile to ensure package dependencies for this project are met. Note: if you are asked to run `renv::activate()`, do so.
 
-The dashboard should show the latest data when run.
+### 2. Create config file
+
+Go to File > New File > R Script (or Ctrl + Shift + N)
+Copy and paste the code below within this new file.
+
+```
+default:
+  api_key:
+
+```
+Save the file as 'config.yml' within the root directory of your version of this repositary (not in a sub folder). Click yes in response to the the pop up error **Confirm Change File Type**.
+
+### 3. Get API Key
+Log in/register to Stat-Xplore and go to Account (top right hand corner menu).
+
+![](www/statxplore-screenshot.png)
+
+Under Open Data Access you will see your API Key. Click copy.
+
+Go to the config.yml file and paste your raw API key next to `api_key:` ensuring you type ENTER then BACKSPACE after.
+
+It should look like this:
+
+![](www/config_screenshot.png)
+
+Save and close this file.
+
+### 4. Create up to date masterdata
+Open the  _/data_update/update_data.R_ file.
+Click anywhere in this script and hit Ctrl + Shift + Enter to run.
+This script will automatically run each individual API query script (within _/data_update/API_queries_) in the correct order. This involves 11 successive API calls (so it might take a minute or two to complete), processing and merging the results, and writing this to a csv master data file. The _global.R_ code which depends on this output will automatically be updated with the appropriate file name reference.
 
 Should you encounter an error running the _/data_update/update_data.R_ file. You can manually run the scripts in the  _/data_update/API_queries/_ folder one by one following the order dictated by the folder names: _/run_first_, _/run_second_ and _/run_third_ to find the issue.
+
+### 5. Run the shiny app
+Within any one of the _global.R_, _ui.R_, or _server.R_ scripts, click Run App (or click anywhere in script and hit Ctrl + Shift + Enter) see the dashboard with up to date data.
 
 
 *** 
