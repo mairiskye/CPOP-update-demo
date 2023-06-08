@@ -5,9 +5,10 @@ library(dplyr)
 library(plotly)
 library(ggplot2)
 library(magrittr)
+library(shinyBS)
 
 #UPDATE ME - update file name manually for data update.
-CPPdta <- readr::read_csv("cpop_data/masterdata-2022-08-10.csv")
+CPPdta <- readr::read_csv("cpop_data/masterdata-2023-06-08.csv")
 
 #global variables extracted from server script
 indicators <- c("Healthy Birthweight", "Primary 1 Body Mass Index", "Child Poverty",

@@ -1,32 +1,41 @@
-library(nomisr)
+library(nomisr) #helper package
+library(magrittr) #for piping
 
-ashe_query <- httr::GET("https://www.nomisweb.co.uk/api/v01/dataset/def.sdmx.json?search=ASHE") %>%
-  content(as = "parsed")
+#search metadata for API Reference from webpage and extract dataset ID
+dataset_id <- nomisr::nomis_search("ASHE") %>% pull(id)
 
-ashe_datasets <- ashe_query$structure$keyfamilies$keyfamily
+metadata <- nomisr::nomis_get_metadata(dataset_id)
 
-ashe_metadata <- nomisr::nomis_get_metadata("NM_99_1")
+item <- nomisr::nomis_get_metadata(dataset_id, concept = "ITEM") %>%
+  filter(grepl("Median", description.en)) %>%
+  pull(id)
 
-ashe_time <- nomisr::nomis_get_metadata("NM_99_1", concept = "TIME")
-#2008-2021
+pay <- nomisr::nomis_get_metadata(dataset_id, concept = "PAY") %>%
+  filter(grepl("Weekly pay - gross", description.en)) %>%
+  pull(id)
 
-ashe_measures <- nomisr::nomis_get_metadata("NM_99_1", concept = "MEASURES")
-#20100
+sex <- nomisr::nomis_get_metadata(dataset_id, concept = "sex") %>%
+  filter(grepl("Total", description.en)) %>%
+  pull(id)
 
-ashe_geo_type <- nomisr::nomis_get_metadata("NM_99_1", concept = "GEOGRAPHY", "TYPE")
-#432
+geography_type <- nomisr::nomis_get_metadata(dataset_id, concept = "GEOGRAPHY", type = "TYPE") %>%
+  filter(grepl("local authorities: district", description.en)) %>%
+  filter(grepl("2021", description.en)) %>%
+  pull(id)
 
-ashe_geo_area <- nomisr::nomis_get_metadata("NM_99_1", concept = "GEOGRAPHY", type = "TYPE432") %>%
-  filter(label.en == "Aberdeen City")
-#2013265931
+geography_area <- nomisr::nomis_get_metadata(dataset_id, concept = "GEOGRAPHY", type = geography_type) %>%
+  filter(grepl("Falkirk", description.en)) %>%
+  pull(parentCode)
 
-ashe_freq <- nomisr::nomis_get_metadata("NM_99_1", concept = "FREQ")
-
-ashe_item <- nomisr::nomis_get_metadata("NM_99_1", concept = "ITEM")
-#2
-
-ashe_pay <- nomisr::nomis_get_metadata("NM_99_1", concept = "PAY")
-#1
-
-ashe_sex <- nomisr::nomis_get_metadata("NM_99_1", concept = "sex")
-#7
+uri <- paste0("https://www.nomisweb.co.uk/api/v01/dataset/",
+              dataset_id,
+              ".data.csv?geography=",
+              geography_area,
+              geography_type,
+              "&item=",
+              item,
+              "&pay=",
+              pay,
+              "sex=",
+              sex,
+              "measures=20100&time=2008,latest&select=,DATE_NAME,GEOGRAPHY_NAME,OBS_VALUE")

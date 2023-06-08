@@ -5,14 +5,14 @@ library(statxplorer) #available here: https://github.com/houseofcommonslibrary/s
 library(magrittr)
 library(dplyr)
 
-#read in api key and send this to API
+#read in api key from config file and send this to API
 api_key <- config::get("api_key")
 statxplorer::set_api_key(api_key)
 
-#query statXplore api for LA level relative low income child poverty data (from json file)
+#query statXplore api using json from file
 results <- statxplorer::fetch_table(filename = "data_update/json/child_poverty_cpp.json")
 
-#extract dataframe from response
+#extract dataframe from results list
 data <- results$dfs$`Relative Low Income`
 
 #rename variables

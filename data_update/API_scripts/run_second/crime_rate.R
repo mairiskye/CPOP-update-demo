@@ -3,16 +3,19 @@ library(dplyr)
 library(magrittr)
 library(readr)
 
-crime_rate_sparql <- read_file("data_update/sparql/crime_rate_cpp.txt")
+#get raw sparql conent from file
+crime_sparql <- read_file("data_update/sparql/crime_rate_cpp.txt")
 
-crime_rate_resp <- httr::POST(
+#query api with sparql in body
+crime_response <- httr::POST(
   url = "https://statistics.gov.scot/sparql.csv",
-  body = list(query = crime_rate_sparql))
+  body = list(query = crime_sparql))
 
-crime_rate <- content(crime_rate_resp, as = "parsed", encoding = "UTF-8") %>%
+#parse response
+crime_data <- content(crime_response, as = "parsed", encoding = "UTF-8") %>%
   select(!Code)
 
-final_crime_data <- crime_rate %>%
+final_crime_data <- crime_data %>%
   mutate(Indicator = "Crime",
          Type = "Raw") %>%
   select(CPP, Year, Indicator, Type, value) %>%
