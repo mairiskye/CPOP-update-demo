@@ -15,13 +15,13 @@ clean_employment_rate_data <- raw_employment_rate_data %>%
   dplyr::mutate(Year = str_replace_all(Year, "Mar " , "")) %>% #trims year data: 'Apr 2010 - Mar 2011' becomes 2010-2011
   dplyr::mutate(Year = gsub("-20", "-", Year))
 
-rolled_average_employment_rates <- clean_employment_rate_data %>%
+  rolled_average_employment_rates <- clean_employment_rate_data %>%
   dplyr::arrange(desc(CPP)) %>% 
   dplyr::group_by(CPP) %>% 
-  dplyr::mutate("value" = zoo::rollmean(Rate, k = 3, fill = NA)) %>% 
+  dplyr::mutate("value" = zoo::rollmean(Rate, k = 3, fill = NA, align = "right")) %>% 
   dplyr::mutate("value" = round(value,1)) %>%
   dplyr::ungroup() %>%
-  select(!Rate) %>%
+  select(!Rate) #%>%
   na.omit()
 
 scotland_totals <- rolled_average_employment_rates %>%
